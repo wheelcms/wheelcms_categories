@@ -34,7 +34,7 @@ class CategoryForm(PageForm):
     class Meta(PageForm.Meta):
         model = Category
 
-    items = forms.ModelMultipleChoiceField(queryset=Category.objects.all(), required=False)
+    items = forms.ModelMultipleChoiceField(queryset=Content.objects.all(), required=False)
 
 class CategoryType(PageType):
     model = Category
