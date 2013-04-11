@@ -79,6 +79,35 @@ class TestCategorySpokeImpExp(BaseSpokeImportExportTest):
     type = Category
     spoke = CategoryType
 
+    def test_items_export_import(self, client):
+        """ add some content to a category, export and import it,
+            verify the items survive the roundtrip """
+        type_registry.register(Type1Type)
+
+        root = Node.root()
+        n1 = root.add("t1")
+        n2 = root.add("t2")
+        n3 = root.add("t3")
+
+        t1 = Type1(title="target 1", node=n1).save()
+        t2 = Type1(title="target 2", node=n2).save()
+        t3 = Type1(title="target 3", node=n3).save()
+
+        c = self.create(title="category")
+        c.instance.items.add(t1, t2)
+
+        res, files = c.serializer().serialize(c)
+
+        c, delay = self.spoke.serializer().deserialize(self.spoke, res)
+        assert delay
+        ## run the delays, which will set the m2m relation
+        for d in delay:
+            d()
+        assert t1.content_ptr in c.instance.items.all()
+        assert t2.content_ptr in c.instance.items.all()
+        assert t3.content_ptr not in c.instance.items.all()
+
+
 class TestCategorySpokeSearch(BaseTestSearch):
     type = CategoryType
 
