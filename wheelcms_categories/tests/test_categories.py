@@ -57,3 +57,28 @@ class TestCategories(object):
         assert list(t.categories.all()) == [self.cat2]
         form.save()
         assert list(t.categories.all()) == [self.cat1]
+
+from wheelcms_axle.tests.test_spoke import BaseSpokeTest, BaseSpokeTemplateTest
+from wheelcms_axle.tests.test_impexp import BaseSpokeImportExportTest
+from wheelcms_axle.tests.test_search import BaseTestSearch
+
+class TestCategorySpokeTemplate(BaseSpokeTemplateTest):
+    """ Test the Category type """
+    type = CategoryType
+
+    def valid_data(self):
+        """ return additional data for Category validation """
+        return dict(body="Hello World")
+
+
+class TestCategorySpoke(BaseSpokeTest):
+    """ Test the Category type """
+    type = CategoryType
+
+class TestCategorySpokeImpExp(BaseSpokeImportExportTest):
+    type = Category
+    spoke = CategoryType
+
+class TestCategorySpokeSearch(BaseTestSearch):
+    type = CategoryType
+
