@@ -1,3 +1,6 @@
+from xml.etree import ElementTree
+from wheelcms_axle.impexp import Importer
+
 from wheelcms_axle.models import Node
 from wheelcms_axle.content import TypeRegistry, type_registry
 from wheelcms_axle.tests.models import Type1, Type1Type
@@ -106,6 +109,79 @@ class TestCategorySpokeImpExp(BaseSpokeImportExportTest):
         assert t1.content_ptr in c.instance.items.all()
         assert t2.content_ptr in c.instance.items.all()
         assert t3.content_ptr not in c.instance.items.all()
+
+    def test_items_export_import_base(self, client):
+        """ importing content with categories in a different (non-root)
+            base should adjust the category references """
+        type_registry.register(Type1Type)
+
+        xml = """<?xml version="1.0" ?>
+<site base="" version="1">
+  <content slug="" type="tests.type1">
+    <fields>
+      <field name="publication">2013-04-15T09:09:00.615574+00:00</field>
+      <field name="created">2013-04-15T09:09:00.615645+00:00</field>
+      <field name="meta_type">type1</field>
+      <field name="title">Root</field>
+      <field name="modified">2013-04-15T09:09:00.615639+00:00</field>
+      <field name="state">private</field>
+      <field name="expire">2033-04-18T09:09:00.615586+00:00</field>
+      <field name="t1field">None</field>
+      <field name="template"/>
+      <field name="owner"/>
+      <field name="navigation">False</field>
+      <tags/>
+      <field name="description"/>
+    </fields>
+    <children>
+      <content slug="t1" type="tests.type1">
+        <fields>
+          <field name="publication">2013-04-15T09:09:00.620481+00:00</field>
+          <field name="created">2013-04-15T09:09:00.620544+00:00</field>
+          <field name="meta_type">type1</field>
+          <field name="title">target 1</field>
+          <field name="modified">2013-04-15T09:09:00.620538+00:00</field>
+          <field name="state">private</field>
+          <field name="expire">2033-04-18T09:09:00.620491+00:00</field>
+          <field name="t1field">None</field>
+          <field name="template"/>
+          <field name="owner"/>
+          <field name="navigation">False</field>
+          <tags/>
+          <field name="description"/>
+        </fields>
+        <children/>
+      </content>
+      <content slug="cat" type="wheelcms_categories.category">
+        <fields>
+          <field name="title">cat</field>
+          <field name="state">published</field>
+          <field name="owner"/>
+          <field name="navigation">False</field>
+          <field name="meta_type">category</field>
+          <items>
+            <item>/</item>
+            <item>/t1</item>
+          </items>
+        </fields>
+  </content>
+    </children>
+  </content>
+</site>"""
+
+
+        base = Node.root().add("sub1").add("sub2")
+        tree = ElementTree.fromstring(xml)
+        res = Importer(base).run(tree)
+
+        assert isinstance(base.content(), Type1)
+        assert len(base.children()) == 2
+        cat = base.child("cat")
+        cont = base.child("t1")
+        items = [x.node for x in cat.content().items.all()]
+
+        assert base in items
+        assert cont in items
 
 
 class TestCategorySpokeSearch(BaseTestSearch):

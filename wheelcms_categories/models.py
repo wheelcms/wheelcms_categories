@@ -26,7 +26,14 @@ class CategorySerializer(WheelSerializer):
 
         def delay_items():
             for i in items:
-                n = Node.objects.get(path=i)
+                ## make absolute path relative to basenode. Relative path
+                ## may be "" / None which means the root, or (relatively) 
+                ## self.basenode
+                if not i or i == '/':
+                    n = self.basenode
+                else:
+                    n = self.basenode.child(i.lstrip('/'))
+                # import pytest; pytest.set_trace()
                 model.items.add(n.content())
 
         return delay_items
