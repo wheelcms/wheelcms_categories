@@ -61,6 +61,15 @@ class CategoryType(PageType):
 
     serializer = CategorySerializer
 
+    @property
+    def icon(self):
+        ## assume that if this category contains children, they're
+        ## categories themselves and this is more a collection of
+        ## categories.
+        if self.instance.node.children().exists():
+            return "categories.png"
+        return "category.png"
+
     @classmethod
     def extend_form(cls, f, *args, **kwargs):
         f.fields['categories'] = forms.ModelMultipleChoiceField(
