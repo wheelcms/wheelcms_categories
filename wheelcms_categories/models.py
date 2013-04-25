@@ -61,6 +61,8 @@ class CategoryType(PageType):
 
     serializer = CategorySerializer
 
+    add_to_index = False
+    
     @property
     def icon(self):
         ## assume that if this category contains children, they're
