@@ -184,6 +184,24 @@ class TestCategorySpokeImpExp(BaseSpokeImportExportTest):
         assert cont in items
 
 
-class TestCategorySpokeSearch(BaseTestSearch):
-    type = CategoryType
+## class TestCategorySpokeSearch(BaseTestSearch):
+##     type = CategoryType
+##
+## categories are no longer indexed...
+from haystack import site
+from haystack.query import SearchQuerySet
 
+class TestCategorySearch(object):
+    def test_not_indexed(self):
+        site._registry = {}
+
+        self.registry = TypeRegistry()
+        type_registry.set(self.registry)
+        self.registry.register(CategoryType)
+        self.sqs = SearchQuerySet()
+
+        c = Category(title="cat", description="cat")
+        c.save()
+
+        res = self.sqs.auto_query("cat")
+        assert not res
