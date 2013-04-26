@@ -62,7 +62,7 @@ class CategoryType(PageType):
     serializer = CategorySerializer
 
     add_to_index = False
-    
+
     @property
     def icon(self):
         ## assume that if this category contains children, they're
@@ -74,10 +74,21 @@ class CategoryType(PageType):
 
     @classmethod
     def extend_form(cls, f, *args, **kwargs):
-        f.fields['categories'] = forms.ModelMultipleChoiceField(
-            queryset=Category.objects.all(), required=False)
+        category_choices = []
+        for c in Category.objects.all():
+            s = c.spoke()
+            w = s.workflow()
+            if w.is_published():
+                category_choices.append((c.id, c.title))
+            else:
+                category_choices.append((c.id, "(%s) %s" %
+                                        (w.state(),  c.title)))
+
+        f.fields['categories'] = forms.MultipleChoiceField(
+                                  choices=category_choices, required=False)
         if 'instance' in kwargs:
-            f.fields['categories'].initial = kwargs['instance'].categories.all()
+            f.fields['categories'].initial = \
+               kwargs['instance'].categories.all().values_list("pk", flat=True)
         f.advanced_fields += ["categories"]
 
     @classmethod
