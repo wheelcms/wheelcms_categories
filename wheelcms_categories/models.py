@@ -48,13 +48,14 @@ class Category(PageBase):
         return self.title
 
 class CategoryForm(PageForm):
-    ## exclude categories?
 
     class Meta(PageForm.Meta):
         model = Category
+        exclude = ["items"]
 
-    items = forms.ModelMultipleChoiceField(queryset=Content.objects.all(),
-                                           required=False)
+
+    #items = forms.ModelMultipleChoiceField(queryset=Content.objects.all(),
+    #                                       required=False)
 
 class CategoryType(PageType):
     model = Category
