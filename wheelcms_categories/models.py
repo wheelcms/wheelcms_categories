@@ -6,6 +6,8 @@ from wheelcms_axle.node import Node
 
 from wheelcms_spokes.page import PageBase, PageType, PageForm
 from wheelcms_axle.content import type_registry
+from wheelcms_axle.templates import template_registry
+
 from wheelcms_axle.impexp import WheelSerializer
 
 class CategorySerializer(WheelSerializer):
@@ -104,4 +106,5 @@ class CategoryType(PageType):
         form.save_m2m = save_m2m
 
 type_registry.register(CategoryType, extends=Content)
-
+template_registry.register(CategoryType, "wheelcms_categories/category_view.html",
+                           "Blog view", default=True)
