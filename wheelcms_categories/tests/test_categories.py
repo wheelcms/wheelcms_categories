@@ -5,7 +5,7 @@ from wheelcms_axle.models import Node
 from wheelcms_axle.content import TypeRegistry, type_registry
 from wheelcms_axle.tests.models import Type1, Type1Type
 
-from ..models import Category, CategoryType
+from wheelcms_categories.models import Category, CategoryType
 
 class TestCategories(object):
     """
@@ -73,6 +73,10 @@ class TestCategorySpokeTemplate(BaseSpokeTemplateTest):
         """ return additional data for Category validation """
         return dict(body="Hello World")
 
+    def test_form_excluded_items(self, client):
+        """ verify certain fields are excluded from the form """
+        form = self.type.form(parent=self.root, data={'template':"bar/foo"})
+        assert 'items' not in form.fields
 
 class TestCategorySpoke(BaseSpokeTest):
     """ Test the Category type """

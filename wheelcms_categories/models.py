@@ -51,7 +51,7 @@ class CategoryForm(PageForm):
 
     class Meta(PageForm.Meta):
         model = Category
-        exclude = ["items"]
+        exclude = PageForm.Meta.exclude + ["items"]
 
 
     #items = forms.ModelMultipleChoiceField(queryset=Content.objects.all(),
