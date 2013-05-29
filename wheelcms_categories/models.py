@@ -77,6 +77,8 @@ class CategoryType(PageType):
 
     @classmethod
     def extend_form(cls, f, *args, **kwargs):
+        if f.light:  ## Do not extend light forms
+            return
         category_choices = []
         for c in Category.objects.all():
             s = c.spoke()
@@ -96,6 +98,9 @@ class CategoryType(PageType):
 
     @classmethod
     def extend_save(cls, form, instance, commit=True):
+        if form.light:
+            return
+
         old_save_m2m = form.save_m2m
 
         def save_m2m():
