@@ -12,7 +12,7 @@
   <div class="span-12">
     <dl>
     {% for c in content.items.all %}
-      <dt><a href="{{c.node.path}}">{{c.title}}</a></dt>
+      <dt><a href="{{c.node.get_absolute_url}}">{{c.title}}</a></dt>
       {# resolve a base content to a specific derived content through .content #}
       <dd>{{c.content.spoke.description|safe}}</dd>
 
