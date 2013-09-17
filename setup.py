@@ -6,7 +6,7 @@ version = '0.8'
 setup(name='wheelcms_categories',
       version=version,
       description="WheelCMS category implementation",
-      long_description=open("README.txt").read()
+      long_description=open("README.txt").read(),
       classifiers=[
         "Programming Language :: Python",
         ],
