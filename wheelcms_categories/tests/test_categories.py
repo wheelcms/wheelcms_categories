@@ -39,7 +39,8 @@ class TestCategories(object):
         self.registry.register(CategoryType, extends=Type1)
         form = Type1Type.form(parent=Node.root(),
                               data=dict(title="test",
-                                        categories=[self.cat1.id]))
+                                        categories=[self.cat1.id],
+                                        language="en"))
         t = form.save()
         assert list(t.categories.all()) == [self.cat1]
         assert list(self.cat1.items.all()) == [t.content_ptr]
@@ -55,7 +56,8 @@ class TestCategories(object):
         form = Type1Type.form(parent=Node.root(),
                               instance=i,
                               data=dict(title="test",
-                                        categories=[self.cat1.id]))
+                                        categories=[self.cat1.id],
+                                        language="en"))
         t = form.save(commit=False)
         assert list(t.categories.all()) == [self.cat2]
         form.save()
@@ -121,6 +123,7 @@ class TestCategorySpokeImpExp(BaseSpokeImportExportTest):
 
         xml = """<?xml version="1.0" ?>
 <site base="" version="1">
+ <node>
   <content slug="" type="tests.type1">
     <fields>
       <field name="publication">2013-04-15T09:09:00.615574+00:00</field>
@@ -137,40 +140,45 @@ class TestCategorySpokeImpExp(BaseSpokeImportExportTest):
       <tags/>
       <field name="description"/>
     </fields>
-    <children>
-      <content slug="t1" type="tests.type1">
-        <fields>
-          <field name="publication">2013-04-15T09:09:00.620481+00:00</field>
-          <field name="created">2013-04-15T09:09:00.620544+00:00</field>
-          <field name="meta_type">type1</field>
-          <field name="title">target 1</field>
-          <field name="modified">2013-04-15T09:09:00.620538+00:00</field>
-          <field name="state">private</field>
-          <field name="expire">2033-04-18T09:09:00.620491+00:00</field>
-          <field name="t1field">None</field>
-          <field name="template"/>
-          <field name="owner"/>
-          <field name="navigation">False</field>
-          <tags/>
-          <field name="description"/>
-        </fields>
-        <children/>
-      </content>
-      <content slug="cat" type="wheelcms_categories.category">
-        <fields>
-          <field name="title">cat</field>
-          <field name="state">published</field>
-          <field name="owner"/>
-          <field name="navigation">False</field>
-          <field name="meta_type">category</field>
-          <items>
-            <item>/</item>
-            <item>/t1</item>
-          </items>
-        </fields>
   </content>
-    </children>
-  </content>
+  <children>
+   <node>
+    <content slug="t1" type="tests.type1">
+      <fields>
+        <field name="publication">2013-04-15T09:09:00.620481+00:00</field>
+        <field name="created">2013-04-15T09:09:00.620544+00:00</field>
+        <field name="meta_type">type1</field>
+        <field name="title">target 1</field>
+        <field name="modified">2013-04-15T09:09:00.620538+00:00</field>
+        <field name="state">private</field>
+        <field name="expire">2033-04-18T09:09:00.620491+00:00</field>
+        <field name="t1field">None</field>
+        <field name="template"/>
+        <field name="owner"/>
+        <field name="navigation">False</field>
+        <tags/>
+        <field name="description"/>
+      </fields>
+    </content>
+    <children/>
+   </node>
+   <node>
+    <content slug="cat" type="wheelcms_categories.category">
+      <fields>
+        <field name="title">cat</field>
+        <field name="state">published</field>
+        <field name="owner"/>
+        <field name="navigation">False</field>
+        <field name="meta_type">category</field>
+        <items>
+          <item>/</item>
+          <item>/t1</item>
+        </items>
+      </fields>
+    </content>
+   </node>
+  </children>
+ </node>
 </site>"""
 
 
