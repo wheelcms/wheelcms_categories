@@ -6,6 +6,16 @@ from wheelcms_axle.tests.models import Type1, Type1Type
 
 from wheelcms_categories.models import Category, CategoryType
 
+import pytest
+
+@pytest.fixture()
+def cat1():
+    return Category(title="cat1", state="published").save()
+
+@pytest.fixture()
+def cat2():
+    return Category(title="cat2", state="published").save()
+
 class TestCategories(object):
     """
         Test the categories implementation. More specifically,
@@ -15,8 +25,6 @@ class TestCategories(object):
         """ replace typeregistry with our local one """
         self.registry = TypeRegistry()
         type_registry.set(self.registry)
-        self.cat1 = Category(title="cat1", state="published").save()
-        self.cat2 = Category(title="cat2", state="published").save()
 
     def test_noextend(self, client, root):
         """ No extending taking place """
@@ -32,35 +40,35 @@ class TestCategories(object):
         form = Type1Type.form(parent=root)
         assert 'categories' in form.fields
 
-    def test_extended_save(self, client, root):
+    def test_extended_save(self, client, root, cat1):
         """ We can save the categories """
         self.registry.register(Type1Type)
         self.registry.register(CategoryType, extends=Type1)
         form = Type1Type.form(parent=root,
                               data=dict(title="test",
-                                        categories=[self.cat1.id],
+                                        categories=[cat1.id],
                                         language="en"))
         t = form.save()
-        assert list(t.categories.all()) == [self.cat1]
-        assert list(self.cat1.items.all()) == [t.content_ptr]
+        assert list(t.categories.all()) == [cat1]
+        assert list(cat1.items.all()) == [t.content_ptr]
 
-    def test_extended_save_nocommit(self, client, root):
+    def test_extended_save_nocommit(self, client, root, cat1, cat2):
         """ but nocommit should not alter the categories m2m until it's
             really committed """
         self.registry.register(Type1Type)
         self.registry.register(CategoryType, extends=Type1)
         i = Type1(title="existing").save()
-        i.categories = [self.cat2]
+        i.categories = [cat2]
 
         form = Type1Type.form(parent=root,
                               instance=i,
                               data=dict(title="test",
-                                        categories=[self.cat1.id],
+                                        categories=[cat1.id],
                                         language="en"))
         t = form.save(commit=False)
-        assert list(t.categories.all()) == [self.cat2]
+        assert list(t.categories.all()) == [cat2]
         form.save()
-        assert list(t.categories.all()) == [self.cat1]
+        assert list(t.categories.all()) == [cat1]
 
 from wheelcms_axle.tests.test_spoke import BaseSpokeTest, BaseSpokeTemplateTest
 from wheelcms_axle.tests.test_impexp import BaseSpokeImportExportTest
