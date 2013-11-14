@@ -1,7 +1,6 @@
 from xml.etree import ElementTree
 from wheelcms_axle.impexp import Importer
 
-from wheelcms_axle.models import Node
 from wheelcms_axle.content import TypeRegistry, type_registry
 from wheelcms_axle.tests.models import Type1, Type1Type
 
@@ -19,25 +18,25 @@ class TestCategories(object):
         self.cat1 = Category(title="cat1", state="published").save()
         self.cat2 = Category(title="cat2", state="published").save()
 
-    def test_noextend(self, client):
+    def test_noextend(self, client, root):
         """ No extending taking place """
         self.registry.register(Type1Type)
         self.registry.register(CategoryType)
-        form = Type1Type.form(parent=Node.root())
+        form = Type1Type.form(parent=root)
         assert 'categories' not in form.fields
 
-    def test_extended_field(self, client):
+    def test_extended_field(self, client, root):
         """ verify that extended content gets a categories formfield """
         self.registry.register(Type1Type)
         self.registry.register(CategoryType, extends=Type1)
-        form = Type1Type.form(parent=Node.root())
+        form = Type1Type.form(parent=root)
         assert 'categories' in form.fields
 
-    def test_extended_save(self, client):
+    def test_extended_save(self, client, root):
         """ We can save the categories """
         self.registry.register(Type1Type)
         self.registry.register(CategoryType, extends=Type1)
-        form = Type1Type.form(parent=Node.root(),
+        form = Type1Type.form(parent=root,
                               data=dict(title="test",
                                         categories=[self.cat1.id],
                                         language="en"))
@@ -45,7 +44,7 @@ class TestCategories(object):
         assert list(t.categories.all()) == [self.cat1]
         assert list(self.cat1.items.all()) == [t.content_ptr]
 
-    def test_extended_save_nocommit(self, client):
+    def test_extended_save_nocommit(self, client, root):
         """ but nocommit should not alter the categories m2m until it's
             really committed """
         self.registry.register(Type1Type)
@@ -53,7 +52,7 @@ class TestCategories(object):
         i = Type1(title="existing").save()
         i.categories = [self.cat2]
 
-        form = Type1Type.form(parent=Node.root(),
+        form = Type1Type.form(parent=root,
                               instance=i,
                               data=dict(title="test",
                                         categories=[self.cat1.id],
@@ -75,9 +74,9 @@ class TestCategorySpokeTemplate(BaseSpokeTemplateTest):
         """ return additional data for Category validation """
         return dict(body="Hello World")
 
-    def test_form_excluded_items(self, client):
+    def test_form_excluded_items(self, client, root):
         """ verify certain fields are excluded from the form """
-        form = self.type.form(parent=self.root, data={'template':"bar/foo"})
+        form = self.type.form(parent=root, data={'template':"bar/foo"})
         assert 'items' not in form.fields
 
 class TestCategorySpoke(BaseSpokeTest):
@@ -88,12 +87,11 @@ class TestCategorySpokeImpExp(BaseSpokeImportExportTest):
     type = Category
     spoke = CategoryType
 
-    def test_items_export_import(self, client):
+    def test_items_export_import(self, client, root):
         """ add some content to a category, export and import it,
             verify the items survive the roundtrip """
         type_registry.register(Type1Type)
 
-        root = Node.root()
         n1 = root.add("t1")
         n2 = root.add("t2")
         n3 = root.add("t3")
@@ -116,7 +114,7 @@ class TestCategorySpokeImpExp(BaseSpokeImportExportTest):
         assert t2.content_ptr in c.instance.items.all()
         assert t3.content_ptr not in c.instance.items.all()
 
-    def test_items_export_import_base(self, client):
+    def test_items_export_import_base(self, client, root):
         """ importing content with categories in a different (non-root)
             base should adjust the category references """
         type_registry.register(Type1Type)
@@ -182,7 +180,7 @@ class TestCategorySpokeImpExp(BaseSpokeImportExportTest):
 </site>"""
 
 
-        base = Node.root().add("sub1").add("sub2")
+        base = root.add("sub1").add("sub2")
         tree = ElementTree.fromstring(xml)
         res = Importer(base).run(tree)
 
