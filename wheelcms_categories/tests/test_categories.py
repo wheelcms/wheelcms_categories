@@ -205,13 +205,13 @@ class TestCategorySpokeImpExp(BaseSpokeImportExportTest):
 from haystack import site
 from haystack.query import SearchQuerySet
 
+@pytest.mark.usefixtures("localtyperegistry")
 class TestCategorySearch(object):
+    type = CategoryType
+
     def test_not_indexed(self):
         site._registry = {}
 
-        self.registry = TypeRegistry()
-        type_registry.set(self.registry)
-        self.registry.register(CategoryType)
         self.sqs = SearchQuerySet()
 
         c = Category(title="cat", description="cat")
