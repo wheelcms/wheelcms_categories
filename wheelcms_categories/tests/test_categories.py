@@ -16,34 +16,30 @@ def cat1():
 def cat2():
     return Category(title="cat2", state="published").save()
 
+@pytest.mark.usefixtures("localtyperegistry")
 class TestCategories(object):
     """
         Test the categories implementation. More specifically,
         the extending behaviour
     """
-    def setup(self):
-        """ replace typeregistry with our local one """
-        self.registry = TypeRegistry()
-        type_registry.set(self.registry)
-
     def test_noextend(self, client, root):
         """ No extending taking place """
-        self.registry.register(Type1Type)
-        self.registry.register(CategoryType)
+        type_registry.register(Type1Type)
+        type_registry.register(CategoryType)
         form = Type1Type.form(parent=root)
         assert 'categories' not in form.fields
 
     def test_extended_field(self, client, root):
         """ verify that extended content gets a categories formfield """
-        self.registry.register(Type1Type)
-        self.registry.register(CategoryType, extends=Type1)
+        type_registry.register(Type1Type)
+        type_registry.register(CategoryType, extends=Type1)
         form = Type1Type.form(parent=root)
         assert 'categories' in form.fields
 
     def test_extended_save(self, client, root, cat1):
         """ We can save the categories """
-        self.registry.register(Type1Type)
-        self.registry.register(CategoryType, extends=Type1)
+        type_registry.register(Type1Type)
+        type_registry.register(CategoryType, extends=Type1)
         form = Type1Type.form(parent=root,
                               data=dict(title="test",
                                         categories=[cat1.id],
@@ -55,8 +51,8 @@ class TestCategories(object):
     def test_extended_save_nocommit(self, client, root, cat1, cat2):
         """ but nocommit should not alter the categories m2m until it's
             really committed """
-        self.registry.register(Type1Type)
-        self.registry.register(CategoryType, extends=Type1)
+        type_registry.register(Type1Type)
+        type_registry.register(CategoryType, extends=Type1)
         i = Type1(title="existing").save()
         i.categories = [cat2]
 
