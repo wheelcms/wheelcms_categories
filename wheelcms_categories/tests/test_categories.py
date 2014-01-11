@@ -3,6 +3,7 @@ from wheelcms_axle.impexp import Importer
 
 from wheelcms_axle.content import TypeRegistry, type_registry
 from wheelcms_axle.tests.models import Type1, Type1Type
+from wheelcms_axle.tests.utils import MockedQueryDict
 
 from wheelcms_categories.models import Category, CategoryType
 
@@ -41,7 +42,7 @@ class TestCategories(object):
         type_registry.register(Type1Type)
         type_registry.register(CategoryType, extends=Type1)
         form = Type1Type.form(parent=root,
-                              data=dict(title="test",
+                              data=MockedQueryDict(title="test",
                                         categories=[cat1.id],
                                         language="en"))
         t = form.save()
@@ -58,7 +59,7 @@ class TestCategories(object):
 
         form = Type1Type.form(parent=root,
                               instance=i,
-                              data=dict(title="test",
+                              data=MockedQueryDict(title="test",
                                         categories=[cat1.id],
                                         language="en"))
         t = form.save(commit=False)
@@ -76,7 +77,7 @@ class TestCategorySpokeTemplate(BaseSpokeTemplateTest):
 
     def valid_data(self):
         """ return additional data for Category validation """
-        return dict(body="Hello World")
+        return MockedQueryDict(body="Hello World")
 
     def test_form_excluded_items(self, client, root):
         """ verify certain fields are excluded from the form """
