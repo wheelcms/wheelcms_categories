@@ -102,7 +102,7 @@ class TestCategorySpokeImpExp(BaseSpokeImportExportTest):
         t2 = Type1(title="target 2", node=n2).save()
         t3 = Type1(title="target 3", node=n3).save()
 
-        c = self.create(title="category")
+        c = CategoryType.create(title="category").save()
         c.instance.items.add(t1, t2)
 
         res, files = c.serializer().serialize(c)
