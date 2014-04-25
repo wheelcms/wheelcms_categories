@@ -84,10 +84,14 @@ class TestCategorySpoke(BaseSpokeTest):
     """ Test the Category type """
     type = CategoryType
 
+@pytest.mark.usefixtures("localtyperegistry")
 class TestCategorySpokeImpExp(BaseSpokeImportExportTest):
     type = CategoryType
     types = (Type1Type, )
     spoke = CategoryType
+
+    def create(self, **kw):
+        return self.type.create(**kw).save()
 
     def test_items_export_import(self, client, root):
         """ add some content to a category, export and import it,
