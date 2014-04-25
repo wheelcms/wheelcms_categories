@@ -84,7 +84,6 @@ class TestCategorySpoke(BaseSpokeTest):
     """ Test the Category type """
     type = CategoryType
 
-@pytest.mark.usefixtures("localtyperegistry")
 class TestCategorySpokeImpExp(BaseSpokeImportExportTest):
     type = CategoryType
     types = (Type1Type, )
