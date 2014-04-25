@@ -1,7 +1,7 @@
 from xml.etree import ElementTree
 from wheelcms_axle.impexp import Importer
 
-from wheelcms_axle.content import TypeRegistry, type_registry
+from wheelcms_axle.content import  type_registry
 from wheelcms_axle.tests.models import Type1, Type1Type
 from wheelcms_axle.tests.utils import MockedQueryDict
 
@@ -23,23 +23,21 @@ class TestCategories(object):
         Test the categories implementation. More specifically,
         the extending behaviour
     """
+    types = (CategoryType, Type1Type)
+
     def test_noextend(self, client, root):
         """ No extending taking place """
-        type_registry.register(Type1Type)
-        type_registry.register(CategoryType)
         form = Type1Type.form(parent=root)
         assert 'categories' not in form.fields
 
     def test_extended_field(self, client, root):
         """ verify that extended content gets a categories formfield """
-        type_registry.register(Type1Type)
         type_registry.register(CategoryType, extends=Type1)
         form = Type1Type.form(parent=root)
         assert 'categories' in form.fields
 
     def test_extended_save(self, client, root, cat1):
         """ We can save the categories """
-        type_registry.register(Type1Type)
         type_registry.register(CategoryType, extends=Type1)
         form = Type1Type.form(parent=root,
                               data=MockedQueryDict(title="test",
@@ -52,7 +50,6 @@ class TestCategories(object):
     def test_extended_save_nocommit(self, client, root, cat1, cat2):
         """ but nocommit should not alter the categories m2m until it's
             really committed """
-        type_registry.register(Type1Type)
         type_registry.register(CategoryType, extends=Type1)
         i = Type1(title="existing").save()
         i.categories = [cat2]
@@ -69,7 +66,6 @@ class TestCategories(object):
 
 from wheelcms_axle.tests.test_spoke import BaseSpokeTest, BaseSpokeTemplateTest
 from wheelcms_axle.tests.test_impexp import BaseSpokeImportExportTest
-from wheelcms_axle.tests.test_search import BaseTestSearch
 
 class TestCategorySpokeTemplate(BaseSpokeTemplateTest):
     """ Test the Category type """
@@ -88,14 +84,15 @@ class TestCategorySpoke(BaseSpokeTest):
     """ Test the Category type """
     type = CategoryType
 
+@pytest.mark.usefixtures("localtyperegistry")
 class TestCategorySpokeImpExp(BaseSpokeImportExportTest):
-    type = Category
+    type = CategoryType
+    types = (Type1Type, )
     spoke = CategoryType
 
     def test_items_export_import(self, client, root):
         """ add some content to a category, export and import it,
             verify the items survive the roundtrip """
-        type_registry.register(Type1Type)
 
         n1 = root.add("t1")
         n2 = root.add("t2")
@@ -122,7 +119,6 @@ class TestCategorySpokeImpExp(BaseSpokeImportExportTest):
     def test_items_export_import_base(self, client, root):
         """ importing content with categories in a different (non-root)
             base should adjust the category references """
-        type_registry.register(Type1Type)
 
         xml = """<?xml version="1.0" ?>
 <site base="" version="1">
@@ -203,7 +199,6 @@ class TestCategorySpokeImpExp(BaseSpokeImportExportTest):
 ##     type = CategoryType
 ##
 ## categories are no longer indexed...
-from haystack import site
 from haystack.query import SearchQuerySet
 
 @pytest.mark.usefixtures("localtyperegistry")
@@ -211,8 +206,6 @@ class TestCategorySearch(object):
     type = CategoryType
 
     def test_not_indexed(self):
-        site._registry = {}
-
         self.sqs = SearchQuerySet()
 
         c = Category(title="cat", description="cat")
