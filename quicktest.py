@@ -19,7 +19,6 @@ if __name__ == '__main__':
             'wheelcms_categories',
 
             'taggit',
-            'two.ol',
             'two.bootstrap',
             'twotest',
             'wheelcms_axle.tests',
