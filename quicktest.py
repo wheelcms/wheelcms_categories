@@ -18,6 +18,8 @@ if __name__ == '__main__':
             'wheelcms_spokes',
             'wheelcms_categories',
 
+            'userena',
+            'guardian',
             'taggit',
             'two.bootstrap',
             'twotest',
