@@ -5,7 +5,6 @@ django-taggit==0.11.2
 django-tinymce
 django-userena
 Pillow
-git+git://github.com/iivvoo/two.ol
 git+git://github.com/iivvoo/two.bootstrap
 git+git://github.com/Stracksapp/stracks_api
 git+git://github.com/wheelcms/wheelcms_axle.git
